@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Book } from "../models/Book";
+import { CanvasBookImage } from "../CanvasBookImage/CanvasBookImage";
 
 interface BookComponentProps {
   book: Book;
@@ -8,9 +9,6 @@ interface BookComponentProps {
 export const BookComponent: React.FC<BookComponentProps> = ({ book }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const imageUrl = `https://source.unsplash.com/seed/${encodeURIComponent(
-    book.ISBN || book.title
-  )}/200x300/?book`;
 
   return (
     <div className="border-b p-4 hover:bg-gray-50 transition">
@@ -30,11 +28,7 @@ export const BookComponent: React.FC<BookComponentProps> = ({ book }) => {
         <div className="mt-4 ml-8 flex gap-6">
           {/* Small book-like image */}
           <div className="w-[120px] h-[180px] flex-shrink-0 overflow-hidden rounded shadow-md border">
-            <img
-              src={imageUrl}
-              alt="Book cover"
-              className="object-cover w-full h-full"
-            />
+            <CanvasBookImage title={book.title} author={book.author} />
           </div>
 
           {/* Book info */}
