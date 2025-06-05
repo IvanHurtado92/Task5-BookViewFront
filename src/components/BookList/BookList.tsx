@@ -1,17 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { Book } from "../models/Book";
 import { BookComponent } from "../BookComponent/BookComponent";
 import type { BookSettings } from "../models/BookSettings";
 
 type Props = {
-  settings: BookSettings
+  settings: BookSettings;
+  page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
 };
 
-export const BooksList: React.FC<Props> = ({ settings }) => {
+export const BooksList: React.FC<Props> = ({ settings, page, setPage }) => {
   const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
+  // Fetch books when settings or page changes
   useEffect(() => {
+    let ignore = false;
     const fetchBooks = async () => {
       setLoading(true);
       try {
@@ -22,31 +27,61 @@ export const BooksList: React.FC<Props> = ({ settings }) => {
           },
           body: JSON.stringify(settings),
         });
-
         const result = await response.json();
-
-        if (response.ok) {
-          setBooks(result.data);
-        } else {
-          console.error("Error:", result);
+        if (!ignore) {
+          if (response.ok) {
+            if (page === 0) {
+              setBooks(result.data);
+            } else {
+              setBooks((prev) => [...prev, ...result.data]);
+            }
+            setHasMore(result.data && result.data.length > 0);
+          } else {
+            setHasMore(false);
+            console.error("Error:", result);
+          }
         }
       } catch (error) {
+        if (!ignore) setHasMore(false);
         console.error("Fetch error:", error);
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     };
-
     fetchBooks();
-  }, [settings]); // refetch every time settings change
+    return () => { ignore = true; };
+  }, [settings, page]);
 
-  if (loading) return <p>Loading books...</p>;
+  // Reset books when settings (except page) change
+  useEffect(() => {
+    setBooks([]);
+    setHasMore(true);
+  }, [settings.locale, settings.seed, settings.likes, settings.reviews]);
+
+  // Infinite scroll handler
+  const handleScroll = useCallback(() => {
+    if (loading || !hasMore) return;
+    if (
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 200
+    ) {
+      setPage((p) => p + 1);
+    }
+  }, [loading, hasMore, setPage]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  if (loading && books.length === 0) return <p>Loading books...</p>;
 
   return (
     <div className="divide-y border rounded shadow bg-white">
       {books.map((book) => (
-        <BookComponent key={book.ISBN} book={book} />
+        <BookComponent key={book.isbn + book.index} book={book} />
       ))}
+      {loading && books.length > 0 && <p className="p-4 text-center">Loading more...</p>}
+      {!hasMore && <p className="p-4 text-center text-gray-400">No more books.</p>}
     </div>
   );
 };

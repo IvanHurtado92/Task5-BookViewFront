@@ -13,12 +13,13 @@ export const BookComponent: React.FC<BookComponentProps> = ({ book }) => {
   return (
     <div className="border-b p-4 hover:bg-gray-50 transition">
       <div
-        className="flex justify-between items-center cursor-pointer"
+        className="flex justify-between items-center cursor-pointer w-full"
         onClick={() => setExpanded(!expanded)}
       >
-        <div className="flex items-center gap-4">
-          <span className="text-gray-500 w-6">{book.index}</span>
-          <span className="font-medium">{book.title}</span>
+        <div className="block items-center gap-4">
+          <span className="text-gray-500 w-6 mr-4">{book.index}</span>
+          <span className="text-gray-500 w-6 mr-4">{book.isbn}</span>
+          <span className="font-medium mr-4">{book.title}</span>
           <span className="text-gray-600 italic">by {book.author}</span>
         </div>
         <span className="text-sm text-blue-600">{expanded ? "▲" : "▼"}</span>
@@ -37,7 +38,7 @@ export const BookComponent: React.FC<BookComponentProps> = ({ book }) => {
               <strong>Publisher:</strong> {book.publisher}, {book.year}
             </p>
             <p className="text-sm text-gray-700">
-              <strong>ISBN:</strong> {book.ISBN}
+              <strong>ISBN:</strong> {book.isbn}
             </p>
             <div className="flex items-center gap-2">
               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">

@@ -6,7 +6,7 @@ export interface Book {
   author: string;
   publisher: string;
   year: number;
-  ISBN: string;
+  isbn: string;
   likes: number;
   reviews: Review[];
 }
