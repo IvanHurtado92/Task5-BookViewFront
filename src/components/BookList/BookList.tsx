@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import type { Book } from "../models/Book";
 import { BookComponent } from "../BookComponent/BookComponent";
 import type { BookSettings } from "../models/BookSettings";
+const API_URL = import.meta.env.VITE_API_URL;
 
 type Props = {
   settings: BookSettings;
@@ -20,7 +21,7 @@ export const BooksList: React.FC<Props> = ({ settings, page, setPage }) => {
     const fetchBooks = async () => {
       setLoading(true);
       try {
-        const response = await fetch("https://localhost:7284/api/Book/GetBooks", {
+        const response = await fetch(API_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
