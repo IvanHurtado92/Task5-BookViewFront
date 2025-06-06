@@ -32,9 +32,15 @@ export const BooksList: React.FC<Props> = ({ settings, page, setPage }) => {
         if (!ignore) {
           if (response.ok) {
             if (page === 0) {
-              setBooks(result.data);
+              // Renumber indexes for the first page
+              const renumbered = result.data.map((book: Book, i: number) => ({ ...book, index: i + 1 }));
+              setBooks(renumbered);
             } else {
-              setBooks((prev) => [...prev, ...result.data]);
+              setBooks((prev) => {
+                const offset = prev.length;
+                const renumbered = result.data.map((book: Book, i: number) => ({ ...book, index: offset + i + 1 }));
+                return [...prev, ...renumbered];
+              });
             }
             setHasMore(result.data && result.data.length > 0);
           } else {
